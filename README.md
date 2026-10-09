@@ -38,10 +38,9 @@ Chinook sample database. The `invoice` and `invoice_line` tables are used as a s
 | 3 | COUNT, SUM, AVG, MIN, MAX, GROUP BY | Revenue by country, average invoice value per customer | [day03_aggregations.sql](queries/day03_aggregations.sql) |
 | 4 | HAVING, WHERE vs HAVING | Revenue-threshold filtering per country, top-N markets | [day04_having.sql](queries/day04_having.sql), [where_vs_having.md](notes/where_vs_having.md) |
 | 5 | INNER JOIN, table aliases, joins with aggregation | Customer lifetime spend, purchase frequency, yearly invoice extracts | [day05_inner_join.sql](queries/day05_inner_join.sql) |
-| 6 | Multi-table INNER JOIN (3-4 tables) | Line-item level purchase history, units purchased per customer | [day06_multi_join.sql](queries/day06_multi_join.sql) |
+| 6 | Multi-table INNER JOIN, LEFT/RIGHT JOIN, anti-joins, FULL JOIN emulation in MySQL | Line-item purchase history, units per customer, employee workload including zero-load staff, orphan record detection | [day06_multi_join.sql](queries/day06_multi_join.sql) |
 
 Remaining in Week 1:
-- [ ] Day 6: LEFT/RIGHT/FULL JOIN, INNER vs LEFT comparison
 - [ ] Day 7: review and exercises
 
 ## Contact
