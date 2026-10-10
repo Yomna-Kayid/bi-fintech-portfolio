@@ -2,10 +2,13 @@
 -- BI Developer Portfolio
 -- Day 5: INNER JOIN
 -- Author: Yomna
--- Database: Chinook (MySQL)
--- Join key used throughout: customer.CustomerId = invoice.CustomerId
+-- Database: Chinook (SQL Server / T-SQL)
+-- Main join key: Customer.CustomerId = Invoice.CustomerId
 -- (one customer -> many invoices)
 -- ============================================================
+
+USE Chinook;
+GO
 
 -- 1. Customer name with every invoice id and total.
 SELECT
@@ -13,8 +16,8 @@ SELECT
     c.LastName,
     i.InvoiceId,
     i.Total
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId;
 
 -- 2. Same as 1, Brazilian customers only, highest invoice first.
@@ -24,8 +27,8 @@ SELECT
     c.Country,
     i.InvoiceId,
     i.Total
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 WHERE c.Country = 'Brazil'
 ORDER BY i.Total DESC;
@@ -37,8 +40,8 @@ SELECT
     i.InvoiceDate,
     i.BillingCountry,
     i.Total
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 WHERE i.Total > 10;
 
@@ -47,8 +50,8 @@ SELECT
     c.CustomerId,
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     i.Total
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId;
 
 -- 5. Invoices issued in 2021, with customer name.
@@ -59,34 +62,57 @@ SELECT
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     i.InvoiceDate,
     i.Total
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 WHERE i.InvoiceDate >= '2021-01-01'
   AND i.InvoiceDate <  '2022-01-01';
 
 -- 6. Total spend per customer; top 5 spenders.
-SELECT
+SELECT TOP 5
     c.CustomerId,
     c.FirstName,
     c.LastName,
     SUM(i.Total) AS total_spent
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 GROUP BY c.CustomerId, c.FirstName, c.LastName
-ORDER BY total_spent DESC
-LIMIT 5;
+ORDER BY total_spent DESC;
 
 -- 7. Customers with more than 6 invoices.
--- Aggregate repeated in HAVING (alias in HAVING is MySQL-only, fails on SQL Server/PostgreSQL).
+-- Aggregate repeated in HAVING: T-SQL does not allow a SELECT alias there.
 SELECT
     c.CustomerId,
     c.FirstName,
     c.LastName,
     COUNT(i.InvoiceId) AS invoice_count
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 GROUP BY c.CustomerId, c.FirstName, c.LastName
 HAVING COUNT(i.InvoiceId) > 6;
+
+-- 8. Invoice with its line items.
+-- Key: Invoice.InvoiceId = InvoiceLine.InvoiceId (one invoice -> many lines)
+SELECT
+    i.InvoiceId,
+    il.TrackId,
+    il.UnitPrice,
+    il.Quantity
+FROM dbo.Invoice AS i
+INNER JOIN dbo.InvoiceLine AS il
+    ON i.InvoiceId = il.InvoiceId;
+
+-- 9. Track with its album and artist.
+-- Keys: Track.AlbumId = Album.AlbumId, Album.ArtistId = Artist.ArtistId
+-- INNER JOIN drops tracks without an album (AlbumId IS NULL), if any exist.
+SELECT
+    t.Name  AS TrackName,
+    al.Title AS AlbumTitle,
+    ar.Name AS ArtistName
+FROM dbo.Track AS t
+INNER JOIN dbo.Album AS al
+    ON t.AlbumId = al.AlbumId
+INNER JOIN dbo.Artist AS ar
+    ON al.ArtistId = ar.ArtistId;
