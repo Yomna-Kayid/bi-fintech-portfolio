@@ -2,26 +2,29 @@
 -- BI Developer Portfolio
 -- Day 6: Multi-table joins, LEFT / RIGHT / FULL JOIN
 -- Author: Yomna
--- Database: Chinook (MySQL)
--- Join chain: customer -> invoice -> invoiceline -> track
+-- Database: Chinook (SQL Server / T-SQL)
+-- Join chain: Customer -> Invoice -> InvoiceLine -> Track
 -- ============================================================
+
+USE Chinook;
+GO
 
 -- ------------------------------------------------------------
 -- Part 1: Multi-table INNER JOIN
 -- ------------------------------------------------------------
 
 -- 1. Line-level detail: customer, invoice, unit price, quantity.
--- Keys: customer.CustomerId = invoice.CustomerId,
---       invoice.InvoiceId   = invoiceline.InvoiceId
+-- Keys: Customer.CustomerId = Invoice.CustomerId,
+--       Invoice.InvoiceId   = InvoiceLine.InvoiceId
 SELECT
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     i.InvoiceId,
     il.UnitPrice,
     il.Quantity
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
-INNER JOIN chinook.invoiceline AS il
+INNER JOIN dbo.InvoiceLine AS il
     ON i.InvoiceId = il.InvoiceId;
 
 -- 2. Total tracks purchased per customer.
@@ -29,26 +32,26 @@ SELECT
     c.CustomerId,
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     SUM(il.Quantity) AS total_tracks_purchased
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
-INNER JOIN chinook.invoiceline AS il
+INNER JOIN dbo.InvoiceLine AS il
     ON i.InvoiceId = il.InvoiceId
 GROUP BY c.CustomerId, c.FirstName, c.LastName;
 
 -- 3. Four-table join: quantity purchased per customer per track.
--- Extra key: invoiceline.TrackId = track.TrackId
+-- Extra key: InvoiceLine.TrackId = Track.TrackId
 SELECT
     c.CustomerId,
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     t.Name AS TrackName,
     SUM(il.Quantity) AS quantity_purchased
-FROM chinook.customer AS c
-INNER JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+INNER JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
-INNER JOIN chinook.invoiceline AS il
+INNER JOIN dbo.InvoiceLine AS il
     ON i.InvoiceId = il.InvoiceId
-INNER JOIN chinook.track AS t
+INNER JOIN dbo.Track AS t
     ON il.TrackId = t.TrackId
 GROUP BY c.CustomerId, c.FirstName, c.LastName, t.Name;
 
@@ -63,8 +66,8 @@ SELECT
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
     i.InvoiceId,
     i.Total
-FROM chinook.customer AS c
-LEFT JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+LEFT JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId;
 
 -- 5. Anti-join: customers with no invoices.
@@ -73,8 +76,8 @@ LEFT JOIN chinook.invoice AS i
 SELECT
     c.CustomerId,
     CONCAT(c.FirstName, ' ', c.LastName) AS FullName
-FROM chinook.customer AS c
-LEFT JOIN chinook.invoice AS i
+FROM dbo.Customer AS c
+LEFT JOIN dbo.Invoice AS i
     ON c.CustomerId = i.CustomerId
 WHERE i.InvoiceId IS NULL;
 
@@ -85,18 +88,18 @@ SELECT
     e.EmployeeId,
     CONCAT(e.FirstName, ' ', e.LastName) AS EmployeeName,
     COUNT(c.CustomerId) AS customer_count
-FROM chinook.employee AS e
-LEFT JOIN chinook.customer AS c
+FROM dbo.Employee AS e
+LEFT JOIN dbo.Customer AS c
     ON c.SupportRepId = e.EmployeeId
 GROUP BY e.EmployeeId, e.FirstName, e.LastName;
 
 -- 7. Artists with no albums (LEFT JOIN anti-join).
 SELECT
-    a.ArtistId,
-    a.Name
-FROM chinook.artist AS a
-LEFT JOIN chinook.album AS al
-    ON al.ArtistId = a.ArtistId
+    ar.ArtistId,
+    ar.Name
+FROM dbo.Artist AS ar
+LEFT JOIN dbo.Album AS al
+    ON al.ArtistId = ar.ArtistId
 WHERE al.AlbumId IS NULL;
 
 -- ------------------------------------------------------------
@@ -110,36 +113,29 @@ SELECT
     e.EmployeeId,
     CONCAT(e.FirstName, ' ', e.LastName) AS EmployeeName,
     COUNT(c.CustomerId) AS customer_count
-FROM chinook.employee AS e
-INNER JOIN chinook.customer AS c
+FROM dbo.Employee AS e
+INNER JOIN dbo.Customer AS c
     ON c.SupportRepId = e.EmployeeId
 GROUP BY e.EmployeeId, e.FirstName, e.LastName;
 
 -- 9. Query 7 rewritten with RIGHT JOIN (table order flipped).
 -- Same rows as query 7: A LEFT JOIN B equals B RIGHT JOIN A.
 SELECT
-    a.ArtistId,
-    a.Name
-FROM chinook.album AS al
-RIGHT JOIN chinook.artist AS a
-    ON al.ArtistId = a.ArtistId
+    ar.ArtistId,
+    ar.Name
+FROM dbo.Album AS al
+RIGHT JOIN dbo.Artist AS ar
+    ON al.ArtistId = ar.ArtistId
 WHERE al.AlbumId IS NULL;
 
--- 10. FULL JOIN emulation: employees and customers.
--- MySQL has no FULL JOIN, so combine LEFT JOIN and RIGHT JOIN with UNION.
--- UNION removes the matched rows that both halves return.
--- Result: only the employee side has unmatched rows (employees with no customers,
--- customer columns NULL); every customer has a support rep.
+-- 10. FULL OUTER JOIN: employees and customers.
+-- Keeps unmatched rows from both sides. Only the employee side has unmatched
+-- rows here (employees with no customers, customer columns NULL); every
+-- customer has a support rep.
+-- MySQL has no FULL JOIN and needs LEFT JOIN ... UNION ... RIGHT JOIN instead.
 SELECT
     e.EmployeeId, e.FirstName AS emp_name,
     c.CustomerId, c.FirstName AS cust_name
-FROM chinook.employee AS e
-LEFT JOIN chinook.customer AS c
-    ON c.SupportRepId = e.EmployeeId
-UNION
-SELECT
-    e.EmployeeId, e.FirstName AS emp_name,
-    c.CustomerId, c.FirstName AS cust_name
-FROM chinook.employee AS e
-RIGHT JOIN chinook.customer AS c
+FROM dbo.Employee AS e
+FULL OUTER JOIN dbo.Customer AS c
     ON c.SupportRepId = e.EmployeeId;
