@@ -9,12 +9,12 @@ Both filter rows, but at different stages of query execution.
 | Aggregates (SUM, COUNT, AVG) | Not allowed | Allowed |
 
 ## Execution order
-FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY -> LIMIT
+FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY -> TOP / OFFSET-FETCH
 
 ## Example
 ```sql
 SELECT BillingCountry, SUM(Total) AS revenue
-FROM chinook.invoice
+FROM dbo.Invoice
 WHERE Total > 5               -- row-level: drop small invoices
 GROUP BY BillingCountry
 HAVING SUM(Total) > 20;       -- group-level: drop low-revenue countries
