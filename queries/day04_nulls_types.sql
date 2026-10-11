@@ -86,23 +86,28 @@ FROM dbo.practice_loans;
 
 -- 6. TRY_CAST: returns NULL instead of an error when conversion fails.
 -- CAST on the same column would stop the whole query at 'N/A'.
--- Rows 3 ('N/A'), 6 ('') and 7 ('12,500.75') are not valid DECIMAL input and should come back NULL.
+-- Row 9 is already NULL in the source. Row 3 ('N/A') is not numeric.
+-- Row 7 ('12,500.75') fails because DECIMAL rejects the thousands-separator comma.
 SELECT
     loan_id,
     amount_text,
     TRY_CAST(amount_text AS DECIMAL(18,2)) AS amount_converted
 FROM dbo.practice_loans;
 
--- 7. Combined: clean text amount, convert safely, replace NULL with 0.
+-- 7. Combined cleanup: strip the comma, turn blanks into NULL, convert safely.
+-- Unusable values stay NULL instead of defaulting to 0, so they do not distort
+-- averages (see query 8).
 SELECT
     loan_id,
     amount_text,
-    COALESCE(TRY_CAST(NULLIF(amount_text, '') AS DECIMAL(18,2)), 0) AS amount_clean
+    TRY_CAST(NULLIF(REPLACE(amount_text, ',', ''), '') AS DECIMAL(18,2)) AS amount_clean
 FROM dbo.practice_loans;
 
--- 8. Aggregates ignore NULL: count and average change depending on how NULL is treated.
--- COUNT(*) counts rows; COUNT(loan_amount) skips NULLs.
--- AVG(loan_amount) skips NULLs; AVG(COALESCE(...)) treats them as 0 and lowers the average.
+-- 8. Aggregates ignore NULL: the choice changes the result.
+-- COUNT(*) counts rows; COUNT(loan_amount) counts loans with a known amount (7 of 10).
+-- NULL here means "amount not determined yet" (pending/rejected), not zero, so
+-- AVG(loan_amount) is the correct average loan size. Replacing NULL with 0
+-- understates it (about 10,200 vs 14,571).
 SELECT
     COUNT(*)                          AS total_rows,
     COUNT(loan_amount)                AS rows_with_amount,
