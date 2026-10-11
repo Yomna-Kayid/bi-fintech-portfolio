@@ -37,11 +37,11 @@ Chinook sample database (SQL Server version). The `Invoice` and `InvoiceLine` ta
 | 1 | SELECT, DISTINCT, aliases, computed columns | Basic customer data retrieval, market list | [day01_select.sql](queries/day01_select.sql) |
 | 2 | WHERE, LIKE, AND/OR, BETWEEN, ORDER BY, TOP, OFFSET-FETCH | Invoice filtering by value range, top-N and paginated invoice lists | [day02_filtering.sql](queries/day02_filtering.sql) |
 | 3 | COUNT, SUM, AVG, GROUP BY, HAVING, WHERE vs HAVING | Revenue by country, revenue-threshold filtering, top-N markets | [day03_aggregations.sql](queries/day03_aggregations.sql), [where_vs_having.md](notes/where_vs_having.md) |
+| 4 | DECIMAL vs FLOAT, NULL handling (IS NULL, COALESCE, ISNULL, NULLIF), safe conversion with TRY_CAST | Data quality checks on loan data: NULL-aware averages, cleaning text amounts | [day04_nulls_types.sql](queries/day04_nulls_types.sql), [sql-server-data-types.md](notes/sql-server-data-types.md) |
 | 5 | INNER JOIN, table aliases, joins with aggregation | Customer lifetime spend, purchase frequency, yearly invoice extracts | [day05_inner_join.sql](queries/day05_inner_join.sql) |
 | 6 | Multi-table joins, LEFT/RIGHT/FULL OUTER JOIN, anti-joins | Line-item purchase history, employee workload including zero-load staff, orphan record detection | [day06_multi_join.sql](queries/day06_multi_join.sql) |
 
 Remaining in Week 1:
-- [ ] Day 4: SQL Server data types, NULL handling (COALESCE, ISNULL, NULLIF, CAST/TRY_CAST)
 - [ ] Day 7: review and exercises
 
 ## Contact
