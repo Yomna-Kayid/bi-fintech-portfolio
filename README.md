@@ -40,9 +40,22 @@ Chinook sample database (SQL Server version). The `Invoice` and `InvoiceLine` ta
 | 4 | DECIMAL vs FLOAT, NULL handling (IS NULL, COALESCE, ISNULL, NULLIF), safe conversion with TRY_CAST | Data quality checks on loan data: NULL-aware averages, cleaning text amounts | [day04_nulls_types.sql](queries/day04_nulls_types.sql), [sql-server-data-types.md](notes/sql-server-data-types.md) |
 | 5 | INNER JOIN, table aliases, joins with aggregation | Customer lifetime spend, purchase frequency, yearly invoice extracts | [day05_inner_join.sql](queries/day05_inner_join.sql) |
 | 6 | Multi-table joins, LEFT/RIGHT/FULL OUTER JOIN, anti-joins | Line-item purchase history, employee workload including zero-load staff, orphan record detection | [day06_multi_join.sql](queries/day06_multi_join.sql) |
+| 7 | Mixed practice: LEFT JOIN, self join, NULL-safe filtering, latest record per entity (MAX per group) | Records with no match, hierarchy comparison, current-value lookup from versioned records | [day07_practice.sql](queries/day07_practice.sql) |
 
-Remaining in Week 1:
-- [ ] Day 7: review and exercises
+### Extra practice
+
+| Topic | File |
+|-------|------|
+| String functions (LEFT, RIGHT, SUBSTRING, CHARINDEX, REPLACE, LTRIM/RTRIM/TRIM), UNION vs UNION ALL, arithmetic, date functions (DATEADD, DATEDIFF, GETDATE) | [extra_string_math_date_functions.sql](queries/extra_string_math_date_functions.sql) |
+
+### Week 1 summary
+- Queried the Chinook database in T-SQL: filtering, sorting, pagination, aggregation, joins across up to four tables.
+- Handled NULLs explicitly (IS NULL, COALESCE, NULLIF, TRY_CAST) and checked how they change aggregates.
+- Solved external practice problems on LeetCode and StrataScratch.
+- Lookups worth remembering: `HAVING` runs after `GROUP BY`; `COUNT(*)` on a LEFT JOIN counts the NULL-padded row; `SUBSTRING` positions start at 1; `<> value` drops NULL rows.
+
+### Next: Week 2
+Subqueries, CTEs, window functions (ROW_NUMBER, RANK, LAG/LEAD), CASE, date functions.
 
 ## Contact
 - LinkedIn: [www.linkedin.com/in/yomna-kayid-746a783ba]
