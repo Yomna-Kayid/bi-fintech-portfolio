@@ -2,7 +2,7 @@
 -- BI Developer Portfolio
 -- FinPractice: Set 1 (Day 1 topics)
 -- Author: Yomna
--- Database: FinPractice (SQL Server / T-SQL), created by data/FinPractice.sql
+-- Database: FinPractice (SQL Server / T-SQL), created by finpractice/FinPractice.sql
 -- Tables: branches, customers, accounts, merchants, transactions, loans, loan_applications
 -- All data is randomly generated; no real customer data.
 -- ============================================================
