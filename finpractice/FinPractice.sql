@@ -1,5 +1,5 @@
 ﻿-- ============================================================
--- FinPractice: قاعدة تدريب SQL (Fintech) — بيانات مولّدة عشوائياً بالكامل
+-- FinPractice:  All data is randomly generated; no real customer data.
 -- ============================================================
 USE master;
 GO
