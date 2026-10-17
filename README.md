@@ -13,6 +13,7 @@
 ```
 queries/     T-SQL practice, one file per day
 notes/       Concept notes (WHERE vs HAVING, OLTP vs OLAP, ...)
+finpractice/ Practice sets on a synthetic fintech database
 diagrams/    Data models and ETL diagrams
 scripts/     Python automation scripts
 dbt/         dbt project (staging and mart models)
@@ -26,7 +27,8 @@ portfolio/   End-to-end projects
 - Planned: Power BI, dbt Core, Python (pandas), Power Query M
 
 ## Data Source
-Chinook sample database (SQL Server version). The `Invoice` and `InvoiceLine` tables are used as a stand-in for transaction data until fintech datasets are introduced in later weeks.
+- Chinook sample database (SQL Server version). The `Invoice` and `InvoiceLine` tables are used as a stand-in for transaction data until fintech datasets are introduced in later weeks.
+- FinPractice: a synthetic fintech database (branches, customers, accounts, merchants, transactions, loans, loan applications). All values are randomly generated. Practice sets and the setup script are in [finpractice/](finpractice/).
 
 ## Progress
 
