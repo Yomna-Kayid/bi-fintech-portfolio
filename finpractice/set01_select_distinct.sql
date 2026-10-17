@@ -1,11 +1,10 @@
 -- ============================================================
 -- BI Developer Portfolio
--- FinPractice: daily practice on a synthetic fintech database
+-- FinPractice: Set 1 (Day 1 topics)
 -- Author: Yomna
 -- Database: FinPractice (SQL Server / T-SQL), created by data/FinPractice.sql
 -- Tables: branches, customers, accounts, merchants, transactions, loans, loan_applications
 -- All data is randomly generated; no real customer data.
--- Each set follows the topics of one day in the plan.
 -- ============================================================
 
 USE FinPractice;
