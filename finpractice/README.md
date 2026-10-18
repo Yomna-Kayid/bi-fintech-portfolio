@@ -14,3 +14,4 @@ branches, customers, accounts, merchants, transactions, loans, loan_applications
 |-----|----------|--------|------|
 | 1 | Day 1 | SELECT, DISTINCT, UPPER, CONCAT, computed columns | [set01_select_distinct.sql](set01_select_distinct.sql) |
 | 2 | Day 2 | WHERE, AND/OR, IN, BETWEEN, LIKE, TOP, OFFSET-FETCH, <> | [set02_filtering.sql](set02_filtering.sql) |
+| 3 | Day 3 | COUNT, SUM, AVG, MIN, MAX, COUNT(DISTINCT), GROUP BY, HAVING | [set03_aggregations.sql](set03_aggregations.sql) |
