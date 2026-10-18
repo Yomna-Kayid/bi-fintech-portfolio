@@ -13,3 +13,4 @@ branches, customers, accounts, merchants, transactions, loans, loan_applications
 | Set | Plan day | Topics | File |
 |-----|----------|--------|------|
 | 1 | Day 1 | SELECT, DISTINCT, UPPER, CONCAT, computed columns | [set01_select_distinct.sql](set01_select_distinct.sql) |
+| 2 | Day 2 | WHERE, AND/OR, IN, BETWEEN, LIKE, TOP, OFFSET-FETCH, <> | [set02_filtering.sql](set02_filtering.sql) |
