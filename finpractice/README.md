@@ -16,3 +16,4 @@ branches, customers, accounts, merchants, transactions, loans, loan_applications
 | 2 | Day 2 | WHERE, AND/OR, IN, BETWEEN, LIKE, TOP, OFFSET-FETCH, <> | [set02_filtering.sql](set02_filtering.sql) |
 | 3 | Day 3 | COUNT, SUM, AVG, MIN, MAX, COUNT(DISTINCT), GROUP BY, HAVING | [set03_aggregations.sql](set03_aggregations.sql) |
 | 4 | Day 4 | IS NULL, COUNT(*) vs COUNT(col), COALESCE, ISNULL, NULLIF, CAST vs TRY_CAST, DECIMAL precision | [set04_nulls_types.sql](set04_nulls_types.sql) |
+| 5 | Day 5 | INNER JOIN, aliases, join + WHERE, join + GROUP BY, COUNT(DISTINCT) after a join | [set05_inner_join.sql](set05_inner_join.sql) |
