@@ -53,6 +53,7 @@ portfolio/   End-to-end projects
 ### Week 1 summary
 - Queried the Chinook database in T-SQL: filtering, sorting, pagination, aggregation, joins across up to four tables.
 - Handled NULLs explicitly (IS NULL, COALESCE, NULLIF, TRY_CAST) and checked how they change aggregates.
+- Closed the week with a 20-question review covering outer joins, anti-joins and common aggregation traps (WHERE vs ON, join fan-out).
 - Solved external practice problems on LeetCode and StrataScratch.
 - Lookups worth remembering: `HAVING` runs after `GROUP BY`; `COUNT(*)` on a LEFT JOIN counts the NULL-padded row; `SUBSTRING` positions start at 1; `<> value` drops NULL rows.
 
