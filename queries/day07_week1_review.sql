@@ -7,7 +7,7 @@
               join fan-out
 
    How to read this file:
-   - Every question is a ticket from a stakeholder.
+   - Practice questions written as stakeholder tickets (requesters are fictional).
    - "-- Check:" runs before the solution: validate your number.
    - "-- Expected:" runs after the solution: confirm the number.
    - Where the ticket is ambiguous, an "-- Assumption:" line is added.
@@ -234,7 +234,6 @@ HAVING SUM(i.Total) > 40;
 
 /* ------------------------------------------------------------
    SECTION C - Joining tables  [Medium]
-   Tip: sketch the path between tables before you type.
    ------------------------------------------------------------ */
 
 -- Q10  (Requester: Content Licensing)
@@ -410,7 +409,7 @@ SELECT SUM(Total) AS GrandRevenue FROM dbo.Invoice;   -- 2328.60
 --   C RIGHT JOIN T = ?
 --   C FULL  JOIN T = ?
 -- In the FULL JOIN result, how many rows have NULLs on the ticket side?
--- On the customer side? A good answer explains the reasoning out loud.
+-- On the customer side? 
 
 -- My answers:
 -- C INNER JOIN T = 8   (every ticket matches a customer)
