@@ -1,6 +1,6 @@
 # FinPractice
 
-Practice sets on a synthetic fintech database. Each set follows the topics of one day in the 90-day plan and is solved on this data instead of Chinook. All values are randomly generated; no real customer data.
+Practice sets on a synthetic fintech database. Each set follows the topics of one day in the 90-day plan and is solved on this data instead of Chinook. Questions are written as stakeholder tickets (requesters are fictional), each with a check or expected result. All values are randomly generated; no real customer data.
 
 ## Setup
 Run [FinPractice.sql](FinPractice.sql) in SSMS. It drops and recreates the `FinPractice` database, so it can be re-run to reset the data.
