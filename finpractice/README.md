@@ -1,99 +1,101 @@
-## FinPractice: SQL Practice Log
+# FinPractice
 
-Practice sets on a synthetic fintech database (`FinPractice`, SQL Server / T-SQL). Each set covers one day of the 90-day plan. Questions are written as stakeholder tickets with an expected result for validation. All data is randomly generated.
+Practice sets on a synthetic fintech database. Each set follows the topics of one day in the 90-day plan and is solved on this data. Questions are written as stakeholder tickets (requesters are fictional), each with an expected result. All values are randomly generated; no real customer data.
 
----
+## Setup
+Run [FinPractice.sql](FinPractice.sql) in SSMS. It drops and recreates the `FinPractice` database, so it can be re-run to reset the data.
 
-### Set 1 (Day 1): SELECT, DISTINCT and Computed Columns
+## Tables
+branches, customers, accounts, merchants, transactions, loans, loan_applications
 
-10 questions on basic selection, de-duplication and column expressions.
-
-**Techniques**
-- `SELECT DISTINCT` on a single column and on column pairs (applies to the combination, not each column)
-- Column aliases and computed columns (`principal * interest_rate / 100`)
-- String concatenation with `+` and `CONCAT`; `+` returns NULL if any operand is NULL, `CONCAT` does not
-- `UPPER` for text normalization
-- `CAST(ROUND(...) AS DECIMAL(12,2))` to control the output scale of arithmetic results
-- `NULLIF` to guard against divide-by-zero in production data
-- Validation queries (`COUNT(DISTINCT ...)`, `COUNT(*)`) to confirm row counts
-
-**Business use cases**
-- Customer city list for email localization
-- Display label generation for a branch locator
-- Yearly interest per loan for treasury reporting
-- Account type and status combinations in the book (risk view)
-- Merchant category and country coverage
-- Uppercase customer names for a KYC mailing
-- Monthly principal portion per loan for planning
-- Support-facing account summary line
-- Branch footprint by country and city
-
-**Source:** [set01_select_distinct.sql](set01_select_distinct.sql)
-
----
-
-### Set 2 (Day 2): Filtering, Sorting and Paging
-
-10 questions on row filtering and ordering, plus 5 review questions from Day 1.
-
-**Techniques**
-- `WHERE` with `AND` / `OR` and explicit parentheses (`AND` binds tighter than `OR`)
-- `IN`, `BETWEEN` (inclusive bounds), `<>`
-- `LIKE` with prefix (`'A%'`) and suffix (`'%Hassan'`) patterns
-- `ORDER BY` with tie-breakers for deterministic output
-- `TOP (n)` with ordered ties
-- `OFFSET ... FETCH NEXT` for pagination (page N skips `(N - 1) x page_size` rows)
-- Matching filter values to the stored case (`'Web'`, `'Completed'`)
-- Review: `DISTINCT` on pairs, computed columns, `CONCAT`, `LOWER`
-
-**Business use cases**
-- Regional campaign targeting by city
-- Audit sampling of mid-sized non-failed transactions
-- Fraud review of the largest completed transactions
-- Name-based customer segmentation
-- Paged customer review screen ordered by signup date
-- Risk list of non-active Savings and Business accounts
-- Digital channel review (Mobile / Web, completed, above a threshold)
-- Merchant filtering by country and category
-- Collections list of unpaid loans by term and interest rate
-- Monthly interest per loan and merchant app labels (review)
-
-**Source:** [set02_filtering.sql](set02_filtering.sql)
-
----
-
-### Set 3 (Day 3): Aggregations and Grouping
-
-10 aggregation questions plus 5 review questions from Day 2.
-
-**Techniques**
-- Aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `COUNT(DISTINCT ...)`
-- `GROUP BY` on single and multiple columns (`account_type` + `status`)
-- `WHERE` vs `HAVING`: row filtering before grouping, group filtering after
-- Explicit `CAST(... AS DECIMAL)` on `ROUND(AVG(...))` and `ROUND(SUM(...))` to control output scale
-- Deterministic ordering with tie-breakers in `ORDER BY`
-- Review: `BETWEEN`, `TOP`, `IN` / `NOT IN`, `OFFSET-FETCH`, `SELECT DISTINCT` on column pairs
-
-**Business use cases**
-- Channel performance: completed transaction count, total and average amount per channel
-- Transaction KPI snapshot: volume, active accounts, largest and average ticket
-- Account book segmentation by type and status, with a minimum group size
-- Customer concentration by city
-- Loan pricing: average interest rate per product
-- Credit risk: defaulted loan exposure per product
-- Payment failure monitoring by transaction type
-- Merchant coverage on purchase transactions
-- Loan application decision mix and average requested amount
-- Premium segment footprint and earliest signup
-
-**Source:** [set03_aggregations.sql](set03_aggregations.sql)
-
----
-
-### Progress
+## Sets
 
 | Set | Plan day | Topics | File |
 |-----|----------|--------|------|
 | 1 | Day 1 | SELECT, DISTINCT, UPPER, CONCAT, computed columns | [set01_select_distinct.sql](set01_select_distinct.sql) |
 | 2 | Day 2 (+ Day 1 review) | WHERE, AND/OR, IN, BETWEEN, LIKE, ORDER BY with tie-breakers, TOP, OFFSET-FETCH | [set02_filtering.sql](set02_filtering.sql) |
 | 3 | Day 3 (+ Day 2 review) | COUNT, SUM, AVG, MIN, MAX, COUNT(DISTINCT), GROUP BY, HAVING | [set03_aggregations.sql](set03_aggregations.sql) |
+
+---
+
+## Set 1 (Day 1): SELECT, DISTINCT and Computed Columns
+
+Solved on the `FinPractice` database (SQL Server / T-SQL). 10 questions written as stakeholder tickets.
+
+**Techniques**
+- `SELECT DISTINCT` on single columns and on column pairs
+- Column aliases and computed columns
+- `UPPER` for case normalization
+- String concatenation with `+` vs `CONCAT` and the NULL behavior of each
+- `CAST(ROUND(...) AS DECIMAL(12,2))` to control the scale of computed amounts
+- `NULLIF` as a divide-by-zero guard (noted for production data)
+- Row-count validation queries against `COUNT(DISTINCT ...)` and `COUNT(*)`
+
+**Business use cases**
+- Customer city list for campaign localization (Marketing)
+- Branch display labels for a branch locator (Product Analytics)
+- Yearly interest and monthly principal per loan (Finance, Treasury)
+- Account type / status combinations for risk review (Risk)
+- Merchant category and country coverage (Merchant Operations, Partnerships)
+- Normalized customer names for KYC mailings (Compliance)
+- Account summary lines for agents (Customer Support)
+- Branch footprint by country and city (Branch Network)
+
+**Source:** [set01_select_distinct.sql](set01_select_distinct.sql)
+
+---
+
+## Set 2 (Day 2): Filtering, Sorting and Paging
+
+Solved on the `FinPractice` database (SQL Server / T-SQL). 10 filtering questions plus 5 review questions from Day 1, written as stakeholder tickets.
+
+**Techniques**
+- `WHERE` with `AND` / `OR` and explicit parentheses to control operator precedence
+- `IN`, `BETWEEN` (inclusive bounds), `<>` and `LIKE` with leading and trailing wildcards
+- `ORDER BY` with tie-breakers (`txn_id`, `customer_id`) for deterministic output
+- `TOP (n)` with a tie-breaker
+- `OFFSET ... FETCH NEXT` for pagination (page 3 of 15 rows = `OFFSET 30`)
+- Matching filter values to the stored case (`'Web'`, not `'web'`)
+- Review: `SELECT DISTINCT` on column pairs, `CONCAT`, `LOWER`, `CAST(ROUND(...) AS DECIMAL(12,2))`
+
+**Business use cases**
+- Regional campaign targeting by city (Customer Support)
+- Audit sampling of mid-sized, non-failed transactions (Finance)
+- Largest completed transactions for fraud review (Fraud)
+- Paged customer review screen (Compliance)
+- Non-active Savings and Business accounts (Risk)
+- Mobile and Web purchases and transfers above 2000 (Operations)
+- Merchant lists by country and category (Treasury)
+- Unpaid loans by term and interest rate (Collections)
+- Customer lookup by name pattern (Customer Support)
+- Monthly loan interest and merchant app labels (review)
+
+**Source:** [set02_filtering.sql](set02_filtering.sql)
+
+---
+
+## Set 3 (Day 3): Aggregations and Grouping
+
+Solved on the `FinPractice` database (SQL Server / T-SQL). 10 aggregation questions plus 5 review questions from Day 2, written as stakeholder tickets.
+
+**Techniques**
+- Aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `COUNT(DISTINCT ...)`
+- `GROUP BY` on single and multiple columns (`account_type` + `status`)
+- `WHERE` vs `HAVING`: row filtering before grouping, group filtering after
+- `ORDER BY` on an aggregate alias, with tie-breakers for deterministic output
+- Explicit `CAST(... AS DECIMAL)` on `ROUND(AVG(...))` and `ROUND(SUM(...))` to control output scale
+- Review: `BETWEEN`, `TOP`, `SELECT DISTINCT` on column pairs, `IN` / `NOT IN`, `OFFSET-FETCH` with a unique last sort key
+
+**Business use cases**
+- Channel scorecard: completed transaction count, total and average amount per channel (Regional Sales Lead)
+- Transaction health KPIs: volume, active accounts, largest and average ticket (Product Analytics)
+- Account book concentration by type and status with a minimum group size (Risk)
+- Customer concentration by city for local events (Marketing)
+- Average interest rate per loan product (Treasury)
+- Defaulted loan exposure per product (Collections)
+- Failed transaction counts by transaction type (Fraud)
+- Merchant activity on completed purchases (Operations)
+- Loan application funnel by decision (Head of Lending)
+- Premium segment footprint and earliest signup (Growth)
+
+**Source:** [set03_aggregations.sql](set03_aggregations.sql)
