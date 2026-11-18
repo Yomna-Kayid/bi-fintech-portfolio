@@ -4,14 +4,16 @@
 -- computed columns, string concatenation
 -- Author: Yomna
 -- Database: FinPractice (SQL Server / T-SQL)
+-- Practice questions written as stakeholder tickets (requesters are fictional).
 -- "-- Expected:" confirms the result after the solution.
 -- ============================================================
 
 USE FinPractice;
 GO
 
--- Q1: Distinct customer cities for campaign localization, alphabetical.
--- Validation query below compares the row count with COUNT(DISTINCT city).
+-- Q1  (Requester: Marketing)
+-- Ask: distinct customer cities for email localization, alphabetical.
+-- Note: validation query compares the row count with COUNT(DISTINCT city).
 SELECT DISTINCT
     city
 FROM dbo.customers
@@ -22,9 +24,10 @@ SELECT COUNT(DISTINCT city) AS DistinctCityCount
 FROM dbo.customers;
 
 
--- Q2: Display label per branch in the format "branch_name - city".
--- branch_name and city are NOT NULL, so + is safe here. On a nullable column
--- + returns NULL for the whole label, while CONCAT treats NULL as an empty string.
+-- Q2  (Requester: Product Analytics)
+-- Ask: branch display label "branch_name - city", ordered by branch_id.
+-- Note: both columns are NOT NULL, so + is safe. On a nullable column + returns
+-- NULL for the whole label, while CONCAT treats NULL as an empty string.
 SELECT
     branch_id,
     branch_name + ' - ' + city AS label
@@ -33,8 +36,9 @@ ORDER BY branch_id;
 -- Expected: 8 rows; branch_id 4 Dubai Marina - Dubai; last row Doha West Bay - Doha.
 
 
--- Q3: Yearly interest per loan: principal * interest_rate / 100.
--- Decimal arithmetic adds extra decimal places and ROUND keeps the wider scale,
+-- Q3  (Requester: Finance)
+-- Ask: yearly interest per loan = principal * interest_rate / 100, rounded to 2 decimals.
+-- Note: decimal arithmetic adds extra decimal places and ROUND keeps the wider scale,
 -- so the result is cast to DECIMAL(12,2).
 SELECT
     loan_id,
@@ -49,8 +53,9 @@ SELECT COUNT(*) AS LoanCount
 FROM dbo.loans;
 
 
--- Q4: Account type / status combinations in the book.
--- DISTINCT applies to the (account_type, status) pair, not to each column separately.
+-- Q4  (Requester: Risk)
+-- Ask: account type / status combinations that exist in the book.
+-- Note: DISTINCT applies to the (account_type, status) pair, not to each column separately.
 SELECT DISTINCT
     account_type,
     status
@@ -59,7 +64,8 @@ ORDER BY account_type, status;
 -- Expected: 8 combinations; first row Business / Active.
 
 
--- Q5: Distinct merchant categories, alphabetical.
+-- Q5  (Requester: Merchant Operations)
+-- Ask: distinct merchant categories, alphabetical.
 SELECT DISTINCT
     category
 FROM dbo.merchants
@@ -67,7 +73,8 @@ ORDER BY category ASC;
 -- Expected: 9 categories; first Dining; last Utilities.
 
 
--- Q6: Upper-case customer names for the KYC mailing.
+-- Q6  (Requester: Compliance)
+-- Ask: upper-case customer names as name_upper for the KYC mailing.
 SELECT
     customer_id,
     UPPER(full_name) AS name_upper,
@@ -77,8 +84,9 @@ ORDER BY customer_id;
 -- Expected: 150 rows; customer_id 25 REEM KAMEL; last row city Abu Dhabi.
 
 
--- Q7: Monthly principal portion per loan: principal / term_months.
--- term_months has no zeros in this table. On production data,
+-- Q7  (Requester: Treasury)
+-- Ask: monthly principal portion per loan = principal / term_months, rounded to 2 decimals.
+-- Note: term_months has no zeros in this table. On production data,
 -- dividing by NULLIF(term_months, 0) avoids a divide-by-zero error.
 SELECT
     loan_id,
@@ -88,7 +96,8 @@ ORDER BY loan_id;
 -- Expected: 140 rows; 5th loan 164.38; last row 269.18.
 
 
--- Q8: Distinct merchant countries, alphabetical.
+-- Q8  (Requester: Partnerships)
+-- Ask: distinct merchant countries, alphabetical.
 SELECT DISTINCT
     country
 FROM dbo.merchants
@@ -96,8 +105,9 @@ ORDER BY country ASC;
 -- Expected: 5 countries; first Egypt; last USA.
 
 
--- Q9: One-line account summary in the format "Account <id> (<type>)".
--- CONCAT converts account_id to text implicitly, so no CAST is needed.
+-- Q9  (Requester: Customer Support)
+-- Ask: one-line account summary in the format "Account <id> (<type>)".
+-- Note: CONCAT converts account_id to text implicitly, so no CAST is needed.
 SELECT
     CONCAT('Account ', account_id, ' (', account_type, ')') AS summary
 FROM dbo.accounts
@@ -105,7 +115,8 @@ ORDER BY account_id;
 -- Expected: 196 rows; first Account 1001 (Savings); last Account 1196 (Savings).
 
 
--- Q10: Branch footprint: distinct country / city pairs.
+-- Q10  (Requester: Branch Network)
+-- Ask: branch footprint, one row per country and city.
 SELECT DISTINCT
     country,
     city
