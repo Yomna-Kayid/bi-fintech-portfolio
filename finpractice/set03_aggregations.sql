@@ -16,7 +16,7 @@ GO
    PART 1 - Aggregations
    ------------------------------------------------------------ */
 
--- Q1  (Requester: Digital Channels)
+-- Q1  (Requester: Regional Sales Lead،)
 -- Ask: completed transactions per channel: count, total and average amount, highest total first.
 -- Note: status filter uses the stored case ('Completed'). AVG is cast to DECIMAL(12,2).
 SELECT
@@ -31,7 +31,7 @@ ORDER BY total_amount DESC;
 -- Expected: 4 rows; top channel Mobile; total_amount 773360.28; avg_amount 681.98.
 
 
--- Q2  (Requester: Finance)
+-- Q2  (Requester: Product Analytics)
 -- Ask: single-row KPI summary of completed transactions.
 -- Note: COUNT(DISTINCT account_id) counts active accounts, not rows.
 SELECT
@@ -72,7 +72,7 @@ ORDER BY n_customers DESC, city ASC;
 -- Expected: 5 cities; top city Dubai with 31 customers.
 
 
--- Q5  (Requester: Pricing)
+-- Q5  (Requester: Treasury)
 -- Ask: average interest rate per loan product, highest first.
 -- Note: ROUND on AVG keeps the source scale, so CAST to DECIMAL(5,2) removes trailing zeros.
 SELECT
@@ -84,7 +84,7 @@ ORDER BY average_rate DESC;
 -- Expected: 4 products; top product Personal; average_rate 12.92.
 
 
--- Q6  (Requester: Credit Risk)
+-- Q6  (Requester: Collections)
 -- Ask: defaulted loan exposure per product, only products with at least 5 defaulted loans.
 -- Note: WHERE filters rows before grouping, HAVING filters groups after.
 SELECT
@@ -99,7 +99,7 @@ ORDER BY total_principal DESC;
 -- Expected: 3 rows; top product Auto; total_principal 253235.14.
 
 
--- Q7  (Requester: Payments Operations)
+-- Q7  (Requester: Fraud)
 -- Ask: failed transactions per transaction type, most failures first.
 -- Note: GROUP BY already returns one row per type, so DISTINCT is not needed.
 SELECT
@@ -112,7 +112,7 @@ ORDER BY failed_txn DESC, txn_type ASC;
 -- Expected: 5 rows; top type Purchase with 88 failures.
 
 
--- Q8  (Requester: Merchant Operations)
+-- Q8  (Requester: Operations)
 -- Ask: amount range and number of distinct merchants for completed purchases.
 SELECT
     MIN(amount)                 AS smallest_amount,
@@ -124,7 +124,7 @@ WHERE status = 'Completed'
 -- Expected: smallest 5.00; largest 799.16; 30 merchants.
 
 
--- Q9  (Requester: Lending Operations)
+-- Q9  (Requester: Head of Lending)
 -- Ask: loan application count and average requested amount per decision.
 SELECT
     decision,
@@ -136,7 +136,7 @@ ORDER BY decision ASC;
 -- Expected: 3 rows; Approved avg 37209.13; Rejected avg 35995.06.
 
 
--- Q10  (Requester: Marketing)
+-- Q10  (Requester: Growth)
 -- Ask: number of cities and earliest signup date for Premium customers.
 -- Note: aggregates without GROUP BY return a single row.
 SELECT
@@ -151,14 +151,16 @@ WHERE segment = 'Premium';
    PART 2 - Review of Day 2
    ------------------------------------------------------------ */
 
--- Q11  (Requester: Treasury)
--- Ask: accounts with a balance between 5000 and 10000 (inclusive), highest balance first.
+-- Q11  (Requester: Finance)
+-- Ask: non-closed accounts with a balance between 5000 and 10000 (inclusive),
+-- highest balance first, ties by account_id.
 SELECT
     account_id,
     balance
 FROM dbo.accounts
 WHERE balance BETWEEN 5000 AND 10000
-ORDER BY balance DESC;
+  AND status <> 'Closed'
+ORDER BY balance DESC, account_id ASC;
 -- Expected: 32 rows; first account_id 1173; last 1124.
 
 
@@ -174,7 +176,7 @@ ORDER BY amount DESC, txn_id ASC;
 -- Expected: 7 rows; first txn_id 51385; 7th amount 4895.63.
 
 
--- Q13  (Requester: Product Analytics)
+-- Q13  (Requester: Operations)
 -- Ask: distinct transaction type / channel combinations.
 -- Note: DISTINCT applies to the pair, not to each column.
 SELECT DISTINCT
@@ -185,7 +187,7 @@ ORDER BY txn_type ASC, channel ASC;
 -- Expected: 16 combinations; first channel ATM; last txn_type Withdrawal.
 
 
--- Q14  (Requester: Partnerships)
+-- Q14  (Requester: Treasury)
 -- Ask: Egypt and Qatar merchants outside the Utilities and Fuel categories, alphabetical.
 SELECT
     merchant_name
@@ -197,14 +199,13 @@ ORDER BY merchant_name ASC;
 
 
 -- Q15  (Requester: Compliance)
--- Ask: accounts paged by opened_date, rows 21 to 40.
--- Note: OFFSET requires ORDER BY. customer_id is not unique per account,
--- so ties on opened_date + customer_id are possible; account_id would be a safer last key.
+-- Ask: page 2 of the account review screen (20 per page), ordered by opened_date then account_id.
+-- Note: page 2 skips (2 - 1) * 20 = 20 rows. OFFSET requires ORDER BY.
 SELECT
     account_id,
     opened_date
 FROM dbo.accounts
-ORDER BY opened_date ASC, customer_id ASC
+ORDER BY opened_date ASC, account_id ASC
 OFFSET 20 ROWS
 FETCH NEXT 20 ROWS ONLY;
 -- Expected: 20 rows; first account_id 1162; last 1138.
