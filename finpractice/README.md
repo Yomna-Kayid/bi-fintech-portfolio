@@ -93,6 +93,11 @@ Solved on the `FinPractice` database (SQL Server / T-SQL). 10 aggregation questi
 - Customer concentration by city for local events (Marketing)
 - Average interest rate per loan product (Treasury)
 - Defaulted loan exposure per product (Collections)
+- Failed transaction counts by transaction type (Fraud)
+- Merchant activity on completed purchases (Operations)
+- Loan application funnel by decision (Head of Lending)
+- Premium segment footprint and earliest signup (Growth)
+
 
 **Source:** [set03_aggregations.sql](set03_aggregations.sql)
 
@@ -124,9 +129,5 @@ Solved on the `FinPractice` database (SQL Server / T-SQL). 10 NULL and data type
 - Review: Active account scorecard, channel volume threshold, loan filtering, net amount after fee, lending KPI row
 
 **Source:** [set04_nulls_types.sql](set04_nulls_types.sql)
-- Failed transaction counts by transaction type (Fraud)
-- Merchant activity on completed purchases (Operations)
-- Loan application funnel by decision (Head of Lending)
-- Premium segment footprint and earliest signup (Growth)
 
 
