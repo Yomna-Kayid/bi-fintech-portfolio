@@ -15,7 +15,7 @@ branches, customers, accounts, merchants, transactions, loans, loan_applications
 | 1 | Day 1 | SELECT, DISTINCT, UPPER, CONCAT, computed columns | [set01_select_distinct.sql](set01_select_distinct.sql) |
 | 2 | Day 2 (+ Day 1 review) | WHERE, AND/OR, IN, BETWEEN, LIKE, ORDER BY with tie-breakers, TOP, OFFSET-FETCH | [set02_filtering.sql](set02_filtering.sql) |
 | 3 | Day 3 (+ Day 2 review) | COUNT, SUM, AVG, MIN, MAX, COUNT(DISTINCT), GROUP BY, HAVING | [set03_aggregations.sql](set03_aggregations.sql) |
-
+| 4 | Day 4 (+ Day 3 review) | IS NULL, COUNT(*) vs COUNT(col), COALESCE, ISNULL, NULLIF, CAST, INFORMATION_SCHEMA, DECIMAL precision | [set04_nulls_types.sql](set04_nulls_types.sql) |
 ---
 
 ## Set 1 (Day 1): SELECT, DISTINCT and Computed Columns
@@ -93,9 +93,40 @@ Solved on the `FinPractice` database (SQL Server / T-SQL). 10 aggregation questi
 - Customer concentration by city for local events (Marketing)
 - Average interest rate per loan product (Treasury)
 - Defaulted loan exposure per product (Collections)
+
+**Source:** [set03_aggregations.sql](set03_aggregations.sql)
+
+## Set 4 (Day 4): NULL Handling and Data Types
+
+Solved on the `FinPractice` database (SQL Server / T-SQL). 10 NULL and data type questions plus 5 review questions from Day 3, written as stakeholder tickets.
+
+**Techniques**
+- `IS NULL` / `IS NOT NULL` filtering, including combined conditions with `AND`
+- `COUNT(*)` vs `COUNT(column)`: counting rows vs counting non-NULL values
+- Decimal division (`100.0 * ...`) to avoid integer truncation in percentages
+- `COALESCE` with multiple fallbacks and `ISNULL` as a NULL-safe default in date comparisons
+- `NULLIF` to exclude zeros from `AVG`
+- `CAST` from `DECIMAL` to `INT` (truncates, no rounding), applied per row before `SUM`
+- `INFORMATION_SCHEMA.COLUMNS` to read data type, numeric precision and max length
+- Review: `GROUP BY` with `HAVING`, `IN`, `BETWEEN`, computed columns, `COUNT(DISTINCT ...)` summaries
+
+**Business use cases**
+- Email coverage gap for the campaign tool (Marketing)
+- Share of customers missing a phone number (Data Governance)
+- Single contact value per customer with fallback order (Customer Support)
+- Point-in-time count of open accounts on a reporting date (Risk)
+- Average balance of funded accounts (Treasury)
+- Transactions without a merchant (Fraud)
+- Customers unreachable by email or phone (Compliance)
+- Loan applications pending a decision, with requested amount (Collections)
+- Column data type and precision check from the catalog (Audit)
+- Whole-unit purchase totals (Finance)
+- Review: Active account scorecard, channel volume threshold, loan filtering, net amount after fee, lending KPI row
+
+**Source:** [set04_nulls_types.sql](set04_nulls_types.sql)
 - Failed transaction counts by transaction type (Fraud)
 - Merchant activity on completed purchases (Operations)
 - Loan application funnel by decision (Head of Lending)
 - Premium segment footprint and earliest signup (Growth)
 
-**Source:** [set03_aggregations.sql](set03_aggregations.sql)
+
