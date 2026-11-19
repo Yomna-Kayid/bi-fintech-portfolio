@@ -1,84 +1,207 @@
 -- ============================================================
 -- BI Developer Portfolio
--- FinPractice Set 4 (Day 4 topics): NULL handling, COALESCE, ISNULL, NULLIF,
--- CAST / TRY_CAST, data types
+-- FinPractice Set 4 (Day 4 topics): IS NULL, COUNT(*) vs COUNT(col),
+-- COALESCE, ISNULL, NULLIF, CAST, INFORMATION_SCHEMA, DECIMAL precision
 -- Author: Yomna
 -- Database: FinPractice (SQL Server / T-SQL)
+-- Practice questions written as stakeholder tickets (requesters are fictional).
+-- "-- Expected:" confirms the result after the solution.
+-- Part 1: Day 4 topics. Part 2: review of Day 3.
 -- ============================================================
 
 USE FinPractice;
 GO
 
--- 1. Customers without an email.
--- "= NULL" never matches (comparison with NULL is UNKNOWN); IS NULL is required.
--- Expected: 26 rows.
-SELECT *
+/* ------------------------------------------------------------
+   PART 1 - NULL handling and data types
+   ------------------------------------------------------------ */
+
+-- Q1  (Requester: Marketing)
+-- Ask: number of customers with no email on file, and the lowest customer_id among them.
+-- Note: NULL is tested with IS NULL; "= NULL" never matches.
+SELECT
+    COUNT(*)         AS n_no_email,
+    MIN(customer_id) AS first_customer_id
 FROM dbo.customers
 WHERE email IS NULL;
+-- Expected: 26 customers; lowest customer_id 9.
 
--- 2. Customers with a phone number.
--- Expected: 137 rows.
-SELECT *
+
+-- Q2  (Requester: Data Governance)
+-- Ask: percentage of customers with no phone number, 2 decimals.
+-- Note: COUNT(*) counts all rows, COUNT(phone) skips NULLs, so the difference is the missing count.
+-- 100.0 forces decimal division; 100 would truncate to integer arithmetic.
+SELECT
+    CAST(ROUND(100.0 * (COUNT(*) - COUNT(phone)) / COUNT(*), 2) AS DECIMAL(5,2)) AS pct_missing_phone
+FROM dbo.customers;
+-- Expected: 8.67.
+
+
+-- Q3  (Requester: Customer Support)
+-- Ask: one contact value per customer: email, else phone, else the text 'none'.
+-- Note: COALESCE returns the first non-NULL argument and accepts any number of arguments.
+SELECT
+    customer_id,
+    COALESCE(email, phone, 'none') AS contact
 FROM dbo.customers
-WHERE phone IS NOT NULL;
+ORDER BY customer_id;
+-- Expected: 150 rows; customer_id 3 hassan.zaki3@mail.com; last row dina.badr150@mail.com.
 
--- 3. Missing emails as COUNT(*) minus COUNT(email).
--- COUNT(column) skips NULLs; COUNT(*) counts every row.
--- Expected: 26.
-SELECT COUNT(*) - COUNT(email) AS missing_email
-FROM dbo.customers;
 
--- 4. Distinct phone values with NULL mapped to a placeholder.
--- All NULLs collapse into one 'none' value: 137 distinct numbers + 'none'.
--- Expected: 138.
-SELECT COUNT(DISTINCT COALESCE(phone, 'none')) AS n
-FROM dbo.customers;
+-- Q4  (Requester: Risk)
+-- Ask: number of accounts open on 2024-06-30 (opened on or before, not closed by then).
+-- Note: closed_date > '2024-06-30' alone would drop accounts that were never closed (NULL).
+-- ISNULL maps NULL to a far-future date so open accounts pass the comparison.
+SELECT
+    COUNT(*) AS n
+FROM dbo.accounts
+WHERE opened_date <= '2024-06-30'
+  AND ISNULL(closed_date, '9999-12-31') > '2024-06-30';
+-- Expected: 179.
 
--- 5. Transactions without a merchant (deposits, transfers, fees and similar).
--- Expected: 1342.
-SELECT COUNT(*) AS n
+
+-- Q5  (Requester: Treasury)
+-- Ask: average balance of accounts that hold money (zero balances ignored), 2 decimals.
+-- Note: NULLIF(balance, 0) turns zeros into NULL and AVG skips NULLs.
+-- Check: result is higher than SELECT AVG(balance) FROM accounts (13597.22).
+SELECT
+    CAST(ROUND(AVG(NULLIF(balance, 0)), 2) AS DECIMAL(12,2)) AS avg_nonzero_balance
+FROM dbo.accounts;
+-- Expected: 15863.42.
+
+
+-- Q6  (Requester: Fraud)
+-- Ask: transactions with no merchant, and how many transaction types that group covers.
+SELECT
+    COUNT(*)                 AS n,
+    COUNT(DISTINCT txn_type) AS n_types
 FROM dbo.transactions
 WHERE merchant_id IS NULL;
+-- Expected: 1342 transactions; 4 types.
 
--- 6. Accounts still open, or closed after 2024-06-30.
--- ISNULL replaces a missing closed_date with a far-future date so open accounts
--- pass the filter. The result takes the type of the first argument (DATE).
--- Expected: 179 rows (168 open + 11 closed after the cutoff).
-SELECT *
-FROM dbo.accounts
-WHERE ISNULL(closed_date, '2099-12-31') > '2024-06-30';
 
--- 7. Average balance excluding zero balances.
--- NULLIF(balance, 0) returns NULL for zeros, and AVG skips NULLs.
--- A plain AVG(balance) is 13597.22 because 28 accounts have a zero balance.
--- Expected: 15863.42.
-SELECT ROUND(AVG(NULLIF(balance, 0)), 2) AS avg_nonzero
-FROM dbo.accounts;
+-- Q7  (Requester: Compliance)
+-- Ask: customers with neither email nor phone, and the lowest customer_id among them.
+-- Note: both conditions use IS NULL joined with AND.
+SELECT
+    COUNT(*)         AS n_unreachable,
+    MIN(customer_id) AS first_customer_id
+FROM dbo.customers
+WHERE email IS NULL
+  AND phone IS NULL;
+-- Expected: 4 customers; lowest customer_id 27.
 
--- 8. CAST from DECIMAL to INT truncates the decimals.
--- The true purchase total is 471234.46, so about 825 is lost over 3000 rows.
--- Expected: 470409.
-SELECT SUM(CAST(amount AS INT)) AS total_int
+
+-- Q8  (Requester: Collections)
+-- Ask: loan applications still waiting for a decision date, and their total requested amount.
+SELECT
+    COUNT(app_id) AS n,
+    CAST(ROUND(SUM(requested_amount), 2) AS DECIMAL(14,2)) AS total_requested
+FROM dbo.loan_applications
+WHERE decision_date IS NULL;
+-- Expected: 35 applications; total requested 1567760.56.
+
+
+-- Q9  (Requester: Audit)
+-- Ask: data type and numeric precision of transactions.amount, and the declared
+-- maximum length of customers.full_name, read from the catalog.
+-- Note: INFORMATION_SCHEMA.COLUMNS exposes DATA_TYPE, NUMERIC_PRECISION and
+-- CHARACTER_MAXIMUM_LENGTH. Money columns are DECIMAL, not FLOAT, to avoid rounding drift.
+SELECT
+    (SELECT DATA_TYPE
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_NAME = 'transactions' AND COLUMN_NAME = 'amount')            AS data_type,
+    (SELECT NUMERIC_PRECISION
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_NAME = 'transactions' AND COLUMN_NAME = 'amount')            AS numeric_precision,
+    (SELECT CHARACTER_MAXIMUM_LENGTH
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_NAME = 'customers' AND COLUMN_NAME = 'full_name')            AS max_len;
+-- Expected: decimal; precision 12; max length 60.
+
+
+-- Q10  (Requester: Finance)
+-- Ask: sum of completed Purchase amounts after dropping the cents from each amount.
+-- Note: CAST from DECIMAL to INT truncates, it does not round. Each value is converted
+-- before SUM, which differs from CAST(SUM(amount) AS INT).
+SELECT
+    SUM(CAST(amount AS INT)) AS whole_units
 FROM dbo.transactions
-WHERE txn_type = 'Purchase';
+WHERE txn_type = 'Purchase'
+  AND status = 'Completed';
+-- Expected: 419787.
 
--- 9. TRY_CAST returns NULL when conversion fails.
--- CAST('12A' AS INT) would stop with a conversion error instead.
--- Expected: NULL.
-SELECT TRY_CAST('12A' AS INT) AS result;
 
--- 10. Data type of transactions.amount.
--- Money is stored as DECIMAL, not FLOAT, to avoid rounding errors.
--- Expected: decimal.
-SELECT DATA_TYPE
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'transactions'
-  AND COLUMN_NAME = 'amount';
+/* ------------------------------------------------------------
+   PART 2 - Review of Day 3
+   ------------------------------------------------------------ */
 
--- 11. Precision and scale of transactions.amount.
--- DECIMAL(12,2): up to 12 digits in total, 2 after the decimal point.
--- Expected: NUMERIC_PRECISION = 12, NUMERIC_SCALE = 2.
-SELECT NUMERIC_PRECISION, NUMERIC_SCALE
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'transactions'
-  AND COLUMN_NAME = 'amount';
+-- Q11  (Requester: Regional Sales Lead)
+-- Ask: scorecard of Active accounts per account type: count, total and average balance,
+-- highest total first.
+-- Note: GROUP BY already returns one row per type, so DISTINCT is not needed.
+-- Check: SUM(total_balance) equals SELECT SUM(balance) FROM accounts WHERE status = 'Active'.
+SELECT
+    account_type,
+    COUNT(*) AS n_accounts,
+    CAST(ROUND(SUM(balance), 2) AS DECIMAL(14,2)) AS total_balance,
+    CAST(ROUND(AVG(balance), 2) AS DECIMAL(12,2)) AS avg_balance
+FROM dbo.accounts
+WHERE status = 'Active'
+GROUP BY account_type
+ORDER BY total_balance DESC;
+-- Expected: 3 rows; top type Checking; total_balance 973842.14; avg_balance 14982.19.
+
+
+-- Q12  (Requester: Operations)
+-- Ask: channels with more than 500 completed transactions, biggest first.
+-- Note: tie-breaker on channel keeps the order deterministic.
+SELECT
+    channel,
+    COUNT(txn_id) AS n
+FROM dbo.transactions
+WHERE status = 'Completed'
+GROUP BY channel
+HAVING COUNT(txn_id) > 500
+ORDER BY n DESC, channel ASC;
+-- Expected: 2 rows; top channel Mobile with 1134 transactions.
+
+
+-- Q13  (Requester: Collections)
+-- Ask: Defaulted or Active loans with a term of 24 to 48 months (inclusive) and
+-- principal above 10000, largest principal first, ties by loan_id.
+SELECT
+    loan_id,
+    principal,
+    term_months,
+    status
+FROM dbo.loans
+WHERE status IN ('Defaulted', 'Active')
+  AND term_months BETWEEN 24 AND 48
+  AND principal > 10000
+ORDER BY principal DESC, loan_id ASC;
+-- Expected: 37 rows; first loan_id 7090; last 7021.
+
+
+-- Q14  (Requester: Finance)
+-- Ask: net amount after a 1.5% fee (amount * 0.985, 2 decimals) for completed transactions above 1000.
+SELECT
+    txn_id,
+    CAST(ROUND(amount * 0.985, 2) AS DECIMAL(12,2)) AS net_amount
+FROM dbo.transactions
+WHERE status = 'Completed'
+  AND amount > 1000
+ORDER BY txn_id;
+-- Expected: 626 rows; first net_amount 1053.92; last 1029.98.
+
+
+-- Q15  (Requester: Head of Lending)
+-- Ask: one-row lending summary: loans, distinct borrowers, largest principal, average interest rate.
+-- Note: COUNT(DISTINCT customer_id) counts borrowers, not loans.
+SELECT
+    COUNT(loan_id)                 AS loans,
+    COUNT(DISTINCT customer_id)    AS borrowers,
+    MAX(principal)                 AS largest_principal,
+    CAST(ROUND(AVG(interest_rate), 2) AS DECIMAL(5,2)) AS avg_rate
+FROM dbo.loans;
+-- Expected: 140 loans; 101 borrowers; largest principal 365440.70; average rate 9.54.
